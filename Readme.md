@@ -1,114 +1,53 @@
-# 🚀 AWS Infrastructure Automation using Terraform & Python
+# AWS Infrastructure Automation using Terraform & Python
 
-Automate AWS infrastructure deployment in minutes with a Python‑based workflow that renders Terraform code from **Jinja2** templates, provisions resources, and verifies them – all from one command‑line interaction.
+## Project Overview
 
----
+This project automates AWS infrastructure deployment using:
 
-## 🗺️ What This Project Does
+* **Python** to collect user inputs and generate Terraform configuration using Jinja2 templates.
+* **Terraform** to provision:
 
-| Layer            | Role in the project                                                                         |
-|------------------|----------------------------------------------------------------------------------------------|
-| **Python**       | *Orchestration* – collects user inputs, renders `main.tf` via Jinja2, and calls Terraform    |
-| **Jinja2**       | *Templating* – turns variables into a ready‑to‑run Terraform configuration                   |
-| **Terraform**    | *Provisioning* – creates an **Application Load Balancer**, **EC2** instances, Security Group |
-| **AWS CLI/Boto3**| *(Optional)* validation helpers & ad‑hoc queries                                             |
+  * Application Load Balancer (ALB)
+  * EC2 Instance
+  * Based on existing VPC and Subnets
 
-The tool asks a few questions (AMI, instance type, ALB name, region) → builds `terraform_workspace/main.tf` → runs `terraform init/plan/apply` automatically → prints the ALB DNS + EC2 public IPs.
+The system dynamically creates the `main.tf` file and runs Terraform commands automatically (init, plan, apply).
 
 ---
 
-## 📂 Project Structure
+## Screenshots
 
-### project/
-├── main.py # Entry‑point: coordinates everything
-├── user_input.py # Friendly CLI prompts & validation
-├── jinja2_generator.py # Renders Terraform template
-├── terraform_executor.py # Wraps 'terraform init/plan/apply/destroy'
+**1️⃣ Load Balancer Created (AWS Console)**
+Image: `screenshots/load_balancers.png`
+
+**2️⃣ Target Group Status (AWS Console)**
+Image: `screenshots/target_group.png`
+
+**3️⃣ EC2 Instance Running (AWS Console)**
+Image: `screenshots/ec2_vm.png`
+
+**4️⃣ Successful Terraform Apply (Terminal Output)**
+Image: `screenshots/terraform_apply.png`
+
+---
+
+## Project Structure
+
+```plaintext
+project/
+├── main.py
+├── user_input.py
+├── jinja2_generator.py
+├── terraform_executor.py
+├── terraform_workspace/   # created automatically
 ├── templates/
-│ └── terraform_template.j2 # Jinja2 file → becomes main.tf
-├── terraform_workspace/ # Auto‑generated TF files + state live here
-└── screenshots/ # Proof‑of‑life images (see below)
-├── image1.png # ALB created (console)
-├── image2.png # ALB DNS output
-├── image3.png # EC2 instance list
-└── image4.png # Successful TF apply
----
-
-Screenshots
-
-1️⃣ Load Balancer Created (AWS Console)Image: screenshots/load_balancers.png
-
-2️⃣ Target Group Status (AWS Console)Image: screenshots/target_group.png
-
-3️⃣ EC2 Instance Running (AWS Console)Image: screenshots/ec2_vm.png
-
-4️⃣ Successful Terraform Apply (Terminal Output)Image: screenshots/terraform_apply.png
-
-## 🛠️ Prerequisites
-
-| Requirement | Notes |
-|-------------|-------|
-| **AWS account** with IAM permissions | EC2, ELB, VPC, IAM (standard personal “AdministratorAccess” works for testing). |
-| **Existing networking**              | 1 VPC + **2 public subnets** (different AZs) + attached **Internet Gateway**. |
-| **Local tools**                      | Python 3.x, Terraform ≥ 1.5, Git, AWS CLI. |
-
-### Export AWS credentials (**one‑liner demo**)
-
-```bash
-export AWS_ACCESS_KEY_ID="AKIAEXAMPLE123"
-export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-export AWS_DEFAULT_REGION="us-east-2"     # region must match your subnets
-
-
----
-
-## 📸 Screenshots
-
-| Screenshot               | Description                                  |
-|--------------------------|----------------------------------------------|
-| `screenshots/image1.png` | Load Balancer created in AWS Console         |
-| `screenshots/image2.png` | ALB **DNS name** & health status             |
-| `screenshots/image3.png` | EC2 instances running                        |
-| `screenshots/image4.png` | Terminal output – successful `terraform apply` |
-
----
-
-## 🛠️ Prerequisites
-
-| Requirement | Notes |
-|-------------|-------|
-| **AWS account** with IAM permissions | EC2, ELB, VPC, IAM (standard personal “AdministratorAccess” works for testing). |
-| **Existing networking**              | 1 VPC + **2 public subnets** (different AZs) + attached **Internet Gateway**. |
-| **Local tools**                      | Python 3.x, Terraform ≥ 1.5, Git, AWS CLI. |
-
-### Export AWS credentials (**one‑liner demo**)
-
-```bash
-export AWS_ACCESS_KEY_ID="AKIAEXAMPLE123"
-export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-export AWS_DEFAULT_REGION="us-east-2"     # region must match your subnets
-
-# 1. Clone
-git clone https://github.com/<your‑user>/<your‑repo>.git
-cd <your‑repo>
-
-# 2. Install Python dependencies
-pip install -r requirements.txt           # python-terraform, jinja2, boto3 (optional)
-
-# 3. Launch the wizard
-python project/main.py
-
-✓ Renders templates/terraform_template.j2  → terraform_workspace/main.tf
-✓ terraform init
-✓ terraform plan
-✓ terraform apply  (auto-approve)
-
-ALB DNS  : my-alb-1234567890.us-east-2.elb.amazonaws.com
-EC2 IP A : 18.117.42.101
-EC2 IP B : 3.145.88.22
-
-cd terraform_workspace
-terraform destroy
+│   └── terraform_template.j2
+└── screenshots/
+    ├── load_balancers.png
+    ├── target_group.png
+    ├── ec2_vm.png
+    └── terraform_apply.png
+```
 
 | File                                 | Responsibility                                                                |
 | ------------------------------------ | ----------------------------------------------------------------------------- |
@@ -120,16 +59,92 @@ terraform destroy
 | **terraform\_workspace/**            | Generated directory: `main.tf`, `.terraform/`, `terraform.tfstate` etc.       |
 | **screenshots/**                     | Optional images for README / demo.                                            |
 
-| Symptom                                       | Fix                                                                                  |
-| --------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `Failed to query available provider packages` | Check internet / proxy; run `terraform init` after setting `https_proxy` if needed.  |
-| `InvalidGroup.Duplicate` security‑group       | Change SG `name` or use `name_prefix`.                                               |
-| Internet‑gateway limit error                  | Your VPC already has an IGW – use `data "aws_internet_gateway"` instead of resource. |
-| Stuck at `aws_lb.* Still creating…`           | Ensure subnets are *public* (route table → 0.0.0.0/0 → IGW).                         |
-| No default VPC error on EC2                   | Supply `vpc_security_group_ids`, not `security_groups` by name.                      |
+---
+
+## Setup & Usage Guide
+
+### Prerequisites
+
+* AWS account with IAM permissions (EC2, ELB, VPC, IAM)
+* Existing VPC ID
+* 2 Public Subnets (in different AZs)
+* Internet Gateway attached to VPC
+* Python 3.x installed
+* Terraform ≥ 1.5 installed
+* AWS CLI installed
+
+### Export AWS credentials
+
+```bash
+export AWS_ACCESS_KEY_ID="AKIAEXAMPLE123"
+export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+export AWS_DEFAULT_REGION="us-east-2"
+```
+
+### Installation
+
+```bash
+pip install python-terraform jinja2
+```
+
+### Deployment Steps
+
+1. Prepare AWS manually (VPC, Subnets, IGW).
+2. Run the project:
+
+```bash
+python project/main.py
+```
+
+3. Provide:
+
+   * AMI choice (ubuntu / amazon-linux)
+   * Instance type (t2.micro)
+   * AWS region (only us-east-2 supported)
+   * Load Balancer name (optional, from env var)
+
+4. The script will:
+
+   * Generate `main.tf`
+   * Run Terraform init, plan, and apply
+   * Display ALB DNS and EC2 Public IP
+
+5. Validate resources via AWS Console.
+
+6. Destroy resources to avoid charges:
+
+```bash
+cd terraform_workspace
+tf destroy
+```
+
+---
+
+## Troubleshooting
+
+| Symptom                                       | Fix                                                                                 |
+| --------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `Failed to query available provider packages` | Check internet / proxy; run `terraform init` after setting `https_proxy` if needed. |
+| `InvalidGroup.Duplicate` security‑group       | Change SG `name` or use `name_prefix`.                                              |
+| Internet‑gateway limit error                  | Use `data "aws_internet_gateway"` for existing IGW.                                 |
+| Stuck at `aws_lb.* Still creating…`           | Ensure subnets are *public* (route table → 0.0.0.0/0 → IGW).                        |
+| No default VPC error on EC2                   | Use `vpc_security_group_ids`, not `security_groups` by name.                        |
+
+---
+
+## AWS Pricing Notes
 
 | Resource | Pricing highlights                                                   |
 | -------- | -------------------------------------------------------------------- |
 | **ALB**  | Charged per hour **and** per LCU; starts billing once `active`.      |
 | **EC2**  | Billed per second (minimum 60 s) for Linux on modern instance types. |
 | **EBS**  | Root‑volume storage persists (charged) until instance is terminated. |
+
+---
+
+## Important Notes
+
+* Always clean up resources after testing to avoid unexpected costs.
+* ALB billing starts as soon as it becomes active.
+
+---
