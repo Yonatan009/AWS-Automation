@@ -73,11 +73,11 @@ project/
 * Terraform ≥ 1.5 installed
 * AWS CLI installed
 
-### Export AWS credentials
+### Export AWS credentials (Example)
 
 ```bash
-export AWS_ACCESS_KEY_ID="AKIAEXAMPLE123"
-export AWS_SECRET_ACCESS_KEY="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+export AWS_ACCESS_KEY_ID="YOUR_AWS_ACCESS_KEY_ID"
+export AWS_SECRET_ACCESS_KEY="YOUR_AWS_SECRET_ACCESS_KEY"
 export AWS_DEFAULT_REGION="us-east-2"
 ```
 
